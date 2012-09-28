@@ -1,4 +1,34 @@
+% Copyright (C) 2012 Mark Chen
+
+% Permission is granted to make and distribute verbatim copies of this
+% document provided that the copyright notice and this permission notice
+% are preserved on all copies.
+
+% Permission is granted to copy and distribute modified versions of this
+% document under the conditions for verbatim copying, provided that the
+% entire resulting derived work is given a different name and distributed
+% under the terms of a permission notice identical to this one.
+
 \datethis
+
+
+% a quick fix for cweb version 3.6 
+@s not_eq normal
+
+% C++ and CppUnit type, treat the following names as types.
+
+@s string int 
+@s std int
+@s CppUnit int
+@s TestCase int
+@s TestSuite int
+@s TextTestRunner int
+@s TestResult int
+@s TestResultCollector int
+@s TestRunner int
+@s CompilerOutputter int
+@s BriefTestProgressListener int
+
 @ Anagram.
 
 Below is the program structure.
@@ -14,20 +44,20 @@ Below is the program structure.
 @<qa\_anagram\_tests@>@/
 int main(int argc, char* argv[])
 {
-	CppUnit::TestResult testresult;
-	CppUnit::TestResultCollector collectedresults;
-	
-	testresult.addListener(&collectedresults);
-	CppUnit::BriefTestProgressListener progress;
+    CppUnit::TestResult testresult;
+    CppUnit::TestResultCollector collectedresults;
+
+    testresult.addListener(&collectedresults);
+    CppUnit::BriefTestProgressListener progress;
     testresult.addListener (&progress);
-		
-	CppUnit::TestRunner	runner;
-	runner.addTest (qa_anagram_tests::suite ());
-	
-	runner.run(testresult); 
-	CppUnit::CompilerOutputter compileroutputter (&collectedresults, std::cerr);
-	compileroutputter.write ();
-	return collectedresults.wasSuccessful () ? 0 : 1; 
+
+    CppUnit::TestRunner	runner;
+    runner.addTest (qa_anagram_tests::suite ());
+
+    runner.run(testresult); 
+    CppUnit::CompilerOutputter compileroutputter (&collectedresults, std::cerr);
+    compileroutputter.write ();
+    return collectedresults.wasSuccessful () ? 0 : 1; 
 }
 @ @<qa\_anagram...@>+=
 class qa_anagram_tests {
@@ -36,11 +66,11 @@ public:
 };
 CppUnit::TestSuite * qa_anagram_tests::suite()
 {
-	CppUnit::TextTestRunner runner;
-	CppUnit::TestSuite *s = new CppUnit::TestSuite("qa_anagram_tests");
-	s->addTest(CQA_BasicTest::suite());	
-	s->addTest(CQA_AnagramTest::suite());	
-	return s;
+    CppUnit::TextTestRunner runner;
+    CppUnit::TestSuite *s = new CppUnit::TestSuite("qa_anagram_tests");
+    s->addTest(CQA_BasicTest::suite());	
+    s->addTest(CQA_AnagramTest::suite());	
+    return s;
 
 }
 @ Basic help functions.
@@ -274,8 +304,11 @@ void CQA_AnagramTest::t3()
 
     }
     for (int i=0;i<qmax;i++) {
-        if(verbose)
-            cout << i << " " << ref[i] << endl;
+        if(verbose){
+            cout << "(" <<i <<")" << " " << ref[i] << " ";
+            if(i%8==7) cout << endl;
+
+        }
         CPPUNIT_ASSERT_EQUAL(ref[i],1);
     }
 
@@ -311,7 +344,7 @@ void CQA_AnagramTest::t4()
     for (int i= 0;i<24;i++) 
         ref[i] = 0;
     CPPUNIT_ASSERT_EQUAL(24, qn);
-     for (int i=0; i<qn; i++) {
+    for (int i=0; i<qn; i++) {
         if(strcmp(q[i], "biro")==0) ref[i]++;
         if(strcmp(q[i], "bior")==0) ref[i]++;
         if(strcmp(q[i], "brio")==0) ref[i]++;
@@ -339,14 +372,16 @@ void CQA_AnagramTest::t4()
         if(strcmp(q[i], "oirb")==0) ref[i]++;
         if(strcmp(q[i], "orbi")==0) ref[i]++;
         if(strcmp(q[i], "orib")==0) ref[i]++;
-        
-    }
-    for (int i=0;i<24;i++) {
-        if(verbose)
-            cout << i << " " << ref[i] << endl;
-        CPPUNIT_ASSERT_EQUAL(ref[i],1);
-    }
 
+    }
+    for (int i=0;i<qmax;i++) {
+        if(verbose){
+            cout << "(" <<i <<")" << " " << ref[i] << " ";
+            if(i%8==7) cout << endl;
+
+        }
+        CPPUNIT_ASSERT_EQUAL(ref[i],1);
+    } 
 }
 @ Let's try with 5 character.
 
@@ -364,10 +399,10 @@ void CQA_AnagramTest::t5()
         memset(q[i], 0, n);
     }
     int qn = anagram(sinput.c_str(), 5, q, qmax);
-    int ref[75];
-    for (int i= 0;i<75;i++) 
+    int ref[120];
+    for (int i= 0;i<qmax;i++) 
         ref[i] = 0;
-    CPPUNIT_ASSERT_EQUAL(75, qn);
+    CPPUNIT_ASSERT_EQUAL(120, qn);
     for (int i=0; i<qn; i++) {
         if(strcmp(q[i], "abiro")==0) ref[i]++;
         if(strcmp(q[i], "abior")==0) ref[i]++;
@@ -422,10 +457,16 @@ int anagram(const char* p, int pmax, char**q, int qmax)
     int cnt;
     int qnmax = (qmax);
     char* p2 = (char*)malloc(pmax+1);
+    char* pv = (char*)malloc(pmax+1);
+    char* pu = (char*)malloc(pmax+1);
+    char* puu = (char*)malloc(pmax+1);
     int* qn = (int*)malloc(sizeof(int)*qnmax);
     assert(p2!=NULL);
     assert(qn!=NULL);
     memset(p2, 0, pmax+1);
+    memset(pv, 0, pmax+1);
+    memset(pu, 0, pmax+1);
+    memset(puu, 0, pmax+1);
     int r = seq_chars(p, p2, pmax, qn,  qnmax);
 
     if(r==1){
@@ -448,7 +489,7 @@ int anagram(const char* p, int pmax, char**q, int qmax)
 
 #if 0
     if(r==3) {
-         int k = 0;
+        int k = 0;
         int cnt =  perm(r);
         char s;
         cout << endl;
@@ -459,10 +500,10 @@ int anagram(const char* p, int pmax, char**q, int qmax)
 
         /* start with init ll*/
         memset(ll, 0, 256);
-        for (int i= 0; i < level; i++)
-            ll[i] = p2[i];  
-    
-         for (int v=0; v<level; v++) {
+        for (int i= 0; i < level; i++) {
+            pv[i] = ll[i] = p2[i];  
+        }
+        for (int v=0; v<level; v++) {
             @<set q[k] from ll, update k@>@;
 
             L = level;
@@ -492,6 +533,9 @@ int anagram(const char* p, int pmax, char**q, int qmax)
             s = ll[0];
             ll[0] = ll[counter];
             ll[counter] = s;
+            for (int j=0;j<level;j++) {
+                pv[j] = ll[j];
+            }
             L = level;
         }
 
@@ -500,11 +544,11 @@ int anagram(const char* p, int pmax, char**q, int qmax)
 
     }
 #endif
-    if(r==4 || r==3) {
+    if(r==4 || r==3 || r==5) {
         int k = 0;
         int cnt =  perm(r);
         char s;
-        cout << endl;
+        if(verbose) cout << endl;
         int level =pmax;
         int counter = 0;
         int L;
@@ -512,119 +556,42 @@ int anagram(const char* p, int pmax, char**q, int qmax)
 
         /* start with init ll*/
         memset(ll, 0, 256);
-        for (int i= 0; i < level; i++)
-            ll[i] = p2[i];  
-        for (int v=0; v<level; v++) {
-            @<set q[k] from ll, update k@>@;
+        for (int i= 0; i < level; i++){
+            puu[i] = pv[i] = pu[i] = ll[i] = p2[i];  
+        }
+        for (int v=0; v<level; v++) { 
+
+           @<set q[k] from ll, update k@>@;
 
             L = level;
             @<swap bottom@>@; 
             @<set q[k] from ll, update k@>@;
 
-
-
-            for (int u=0; u<level-2; u++) { 
-                /* when swap is done go to the up level*/
-                if(L > (level-2)) L-=2;
-                if (L > 1) {
-                    if(verbose)
-                        cout << " move on to:  " << L << endl;
-                    s = ll[L-1];
-                    ll[L-1] = ll[L];
-                    ll[L] = s;
-                    @<set q[k] from ll, update k@>@;
-
-                    L = level; /* set l to 4 again*/
-                    @<swap bottom@>@; 
-                    @<set q[k] from ll, update k@>@;
-                }
-            }
-            L=1;        
+           @<move upper from 3@>@;
+            
+            @<move upper from 2@>@;
+            
+            /* change head */
+            if(verbose) cout << endl << "##change head..." << endl;
             for (int j=0;j<level;j++) {
                 ll[j] = p2[j];
             }
             s = ll[0];
             ll[0] = ll[v+1];
             ll[v+1] = s;
-            L = level;
-        }
-        return k;
-    }
-    if(r==5) {
-        
-        int k = 0;
-        int cnt =  perm(r);
-        char s;
-        cout << endl;
-        int level =pmax;
-        int counter = 0;
-        int L;
-        char ll[256];
-
-        /* start with init ll*/
-        memset(ll, 0, 256);
-        for (int i= 0; i < level; i++)
-            ll[i] = p2[i];  
-        for (int v=0; v<level; v++) {
-            @<set q[k] from ll, update k@>@;
-
-            L = level;
-            @<swap bottom@>@; 
-            @<set q[k] from ll, update k@>@;
-
-            for(int w=0; w<level-3; w++) {
-
-
-
-                for (int u=0; u<level-2; u++) { 
-                    /* when swap is done go to the up level*/
-                    if(L > (level-2)) L-=2;
-                    if (L > 1) {
-                        if(verbose)
-                            cout << " move u to:  " << L << endl;
-                        s = ll[L-1];
-                        ll[L-1] = ll[L];
-                        ll[L] = s;
-                        @<set q[k] from ll, update k@>@;
-
-                        L = level; /* set l to 4 again*/
-                        @<swap bottom@>@; 
-                        @<set q[k] from ll, update k@>@;
-                    }
-                }
-
-                L=2;
-                for (int j=0;j<level;j++) {
-                    ll[j] = p2[j];
-                }
-               if(verbose) cout << " move w to:  " << L << endl;
-                s = ll[1];
-                ll[1] = ll[w+2];
-                ll[w+2] = s;
-                L = level;
-
-                @<set q[k] from ll, update k@>@;
-
-                L = level;
-                @<swap bottom@>@; 
-                @<set q[k] from ll, update k@>@;
-
-            }
-            L=1;        
             for (int j=0;j<level;j++) {
-                ll[j] = p2[j];
+               pv[j] = ll[j];
             }
-            if(verbose) cout << " move v to:  " << L << endl;
-            s = ll[0];
-            ll[0] = ll[v+1];
-            ll[v+1] = s;
             L = level;
-        }
 
-
-
+            
+            for (int i= 0; i < level; i++){
+                 pu[i] = ll[i];
+            }
+         }
         return k;
     }
+  
 
 
     return 1;
@@ -634,11 +601,71 @@ int anagram(const char* p, int pmax, char**q, int qmax)
 for (int j=0;j<level;j++) {
      q[k][j] = ll[j];
 }
-cout << k << " : " << q[k] << endl;
+if(verbose) {
+    cout << k << " : " << q[k] << " ";
+    if (k%24==23) cout << endl;
+}
 k++;
 
+
+@ @<move upper from 3@>=       
+for (int u=level-2; u<level; u++) { 
+    /* when swap is done go to the up level*/
+    if(L > (level-2)) L-=2;
+    if (L > 1) {
+        if(verbose) {
+            cout << " move upper from 3:  " << L << endl;
+        }   
+
+        for (int j=0;j<level;j++) {
+            ll[j] = pu[j];
+        }
+        s = ll[level-3];
+        ll[level-3] = ll[u];
+        ll[u] = s;
+        for (int j=0;j<level;j++) {
+           puu[j] = ll[j];
+        }
+        @<set q[k] from ll, update k@>@;
+
+        L = level; /* set l to 4 again*/
+        @<swap bottom@>@; 
+        @<set q[k] from ll, update k@>@;
+    }
+}
+
+@ @<move upper from 2@>=       
+for (int uu=level-3; uu<level;uu++) {
+
+    if(L > (level-3)) L-=3;
+    if (L > 1) {
+        if(verbose)
+            cout << " move upper from 2:  " << L << "(" << uu <<  ")" <<  endl;
+
+       for (int j=0;j<level;j++) {
+            ll[j] = pv[j];
+       }
+ 
+        s = ll[level-4];
+        ll[level-4] = ll[uu];
+        ll[uu] = s;
+        for (int j=0;j<level;j++) {
+           pu[j] = ll[j];
+        }
+ 
+        @<set q[k] from ll, update k@>@;
+
+        L = level; /* set l to 4 again*/
+        @<swap bottom@>@; 
+        @<set q[k] from ll, update k@>@;
+
+        @<move upper from 3@>@;
+    }
+
+}
+
 @ 
-@d verbose 1
+@d verbose 0
 @<swap bottom@>=
 if(L == level) {
     if(verbose)
