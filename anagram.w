@@ -171,12 +171,16 @@ class CQA_AnagramTest : public CppUnit::TestCase {
     CPPUNIT_TEST (t1);
     CPPUNIT_TEST (t2);
     CPPUNIT_TEST (t3);
+    CPPUNIT_TEST (t4);
+    CPPUNIT_TEST (t5);
     CPPUNIT_TEST_SUITE_END();
 
     private:
     void t1();
     void t2();
     void t3();
+    void t4();
+    void t5();
 };
 
 @ @<includes@>+=
@@ -242,6 +246,40 @@ void CQA_AnagramTest::t2()
     }
 }
 
+@ @<test...@>+=
+void CQA_AnagramTest::t3()
+{
+    int r1,r2;
+    char** q;
+    int qmax=perm(3);
+    string sinput = "dog";
+    int n = strlen(sinput.c_str())+1;
+    q = (char**)malloc(sizeof(char*)*qmax);
+    for(int i=0; i<qmax;i++) {
+        q[i] = (char*)malloc(n);
+        memset(q[i], 0, n);
+    }
+    int qn = anagram(sinput.c_str(), 3, q, qmax);
+    int ref[24];
+    for (int i= 0;i<24;i++) 
+        ref[i] = 0;
+    CPPUNIT_ASSERT_EQUAL(qmax, qn);
+     for (int i=0; i<qn; i++) {
+        if(strcmp(q[i], "dog")==0) ref[i]++;
+        if(strcmp(q[i], "dgo")==0) ref[i]++;
+        if(strcmp(q[i], "odg")==0) ref[i]++;
+        if(strcmp(q[i], "ogd")==0) ref[i]++;
+        if(strcmp(q[i], "god")==0) ref[i]++;
+        if(strcmp(q[i], "gdo")==0) ref[i]++;
+
+    }
+    for (int i=0;i<qmax;i++) {
+        if(verbose)
+            cout << i << " " << ref[i] << endl;
+        CPPUNIT_ASSERT_EQUAL(ref[i],1);
+    }
+
+}
 
 
 @ A input string `biro' has the following combination:
@@ -256,7 +294,7 @@ Why 24 combinations? By refer to Don Knuth's book, we have the following
 formula: 
     $ 4!/1!1!1!1! = 24 $
 @<test...@>+=
-void CQA_AnagramTest::t3()
+void CQA_AnagramTest::t4()
 {
     int r1,r2;
     char** q;
@@ -310,7 +348,65 @@ void CQA_AnagramTest::t3()
     }
 
 }
-@ Include the definition of the class of c++.
+@ Let's try with 5 character.
+
+@<test...@>+=
+void CQA_AnagramTest::t5()
+{
+    int r1,r2;
+    char** q;
+    int qmax=perm(5);
+    string sinput = "abior";
+    int n = strlen(sinput.c_str())+1;
+    q = (char**)malloc(sizeof(char*)*qmax);
+    for(int i=0; i<qmax;i++) {
+        q[i] = (char*)malloc(n);
+        memset(q[i], 0, n);
+    }
+    int qn = anagram(sinput.c_str(), 5, q, qmax);
+    int ref[75];
+    for (int i= 0;i<75;i++) 
+        ref[i] = 0;
+    CPPUNIT_ASSERT_EQUAL(75, qn);
+    for (int i=0; i<qn; i++) {
+        if(strcmp(q[i], "abiro")==0) ref[i]++;
+        if(strcmp(q[i], "abior")==0) ref[i]++;
+        if(strcmp(q[i], "abrio")==0) ref[i]++;
+        if(strcmp(q[i], "abroi")==0) ref[i]++;
+        if(strcmp(q[i], "aboir")==0) ref[i]++;
+        if(strcmp(q[i], "abori")==0) ref[i]++;
+
+        if(strcmp(q[i], "aibro")==0) ref[i]++;
+        if(strcmp(q[i], "aibor")==0) ref[i]++;
+        if(strcmp(q[i], "airbo")==0) ref[i]++;
+        if(strcmp(q[i], "airob")==0) ref[i]++;
+        if(strcmp(q[i], "aiobr")==0) ref[i]++;
+        if(strcmp(q[i], "aiorb")==0) ref[i]++;
+
+        if(strcmp(q[i], "arbio")==0) ref[i]++;
+        if(strcmp(q[i], "arboi")==0) ref[i]++;
+        if(strcmp(q[i], "aribo")==0) ref[i]++;
+        if(strcmp(q[i], "ariob")==0) ref[i]++;
+        if(strcmp(q[i], "aroib")==0) ref[i]++;
+        if(strcmp(q[i], "arobi")==0) ref[i]++;
+
+        if(strcmp(q[i], "aobir")==0) ref[i]++;
+        if(strcmp(q[i], "aobri")==0) ref[i]++;
+        if(strcmp(q[i], "aoibr")==0) ref[i]++;
+        if(strcmp(q[i], "aoirb")==0) ref[i]++;
+        if(strcmp(q[i], "aorbi")==0) ref[i]++;
+        if(strcmp(q[i], "aorib")==0) ref[i]++;
+
+    }
+    for (int i=0;i<24;i++) {
+        if(verbose)
+            cout << i << " " << ref[i] << endl;
+        CPPUNIT_ASSERT_EQUAL(ref[i],1);
+    }
+
+
+}
+ @ Include the definition of the class of c++.
 @<incl...@>+=
 #include <vector>
 #include <string>
@@ -349,7 +445,62 @@ int anagram(const char* p, int pmax, char**q, int qmax)
         }
         return perm(r);
     }
-    if(r>2) {
+
+#if 0
+    if(r==3) {
+         int k = 0;
+        int cnt =  perm(r);
+        char s;
+        cout << endl;
+        int level =pmax;
+        int counter = 0;
+        int L;
+        char ll[256];
+
+        /* start with init ll*/
+        memset(ll, 0, 256);
+        for (int i= 0; i < level; i++)
+            ll[i] = p2[i];  
+    
+         for (int v=0; v<level; v++) {
+            @<set q[k] from ll, update k@>@;
+
+            L = level;
+            @<swap bottom@>@; 
+            @<set q[k] from ll, update k@>@;
+
+            for (int u=0; u<level-2; u++) { 
+                /* when swap is done go to the up level*/
+                if(L > 2) L-=2;
+                if (L > 1) {
+                    if(verbose)
+                        cout << " move on to:  " << L << endl;
+                    s = ll[L-1];
+                    ll[L-1] = ll[L];
+                    ll[L] = s;
+                    @<set q[k] from ll, update k@>@;
+
+                    L = level; /* set l to 4 again*/
+                    @<swap bottom@>@; 
+                    @<set q[k] from ll, update k@>@;
+                }
+            }
+            L=1;        
+            for (int j=0;j<level;j++) {
+                ll[j] = p2[j];
+            }
+            s = ll[0];
+            ll[0] = ll[counter];
+            ll[counter] = s;
+            L = level;
+        }
+
+        return k;
+
+
+    }
+#endif
+    if(r==4 || r==3) {
         int k = 0;
         int cnt =  perm(r);
         char s;
@@ -358,70 +509,124 @@ int anagram(const char* p, int pmax, char**q, int qmax)
         int counter = 0;
         int L;
         char ll[256];
-        
-       /* start with init ll*/
+
+        /* start with init ll*/
         memset(ll, 0, 256);
         for (int i= 0; i < level; i++)
             ll[i] = p2[i];  
-restart:
-        /* the first is the exist string */
-        @<set q[k] from ll, update k@>@;
-        
-        /* set the level to the bottom and swap*/
-        L = level;
-        @<swap bottom@>@; 
-        @<set q[k] from ll, update k@>@;
-        
-        
-        /* when swap is done go to the up level*/
-        if(L > 2) L-=2;
-        if (L > 0) {
-            if(verbose)
-                cout << " move on to:  " << L << endl;
-            s = ll[1];
-            ll[1] = ll[2];
-            ll[2] = s;
-         }
-        @<set q[k] from ll, update k@>@;
-        
-        L = level; /* set l to 4 again*/
-        @<swap bottom@>@; 
-        @<set q[k] from ll, update k@>@;
-        
-        if(L > 0) {
-            if(verbose)
-                cout << " move on to:  " << L << endl;
-            s = ll[1];
-            ll[1] = ll[2];
-            ll[2] = s;
-            L = level; /* set l to 4 again*/
-        }        
-        @<set q[k] from ll, update k@>@;
+        for (int v=0; v<level; v++) {
+            @<set q[k] from ll, update k@>@;
 
-        @<swap bottom@>@; 
-        @<set q[k] from ll, update k@>@;
-        
+            L = level;
+            @<swap bottom@>@; 
+            @<set q[k] from ll, update k@>@;
 
-        L = 1;
-        /* move on to next head */
-        counter ++;
 
-        for (int j=0;j<level;j++) {
-            ll[j] = p2[j];
+
+            for (int u=0; u<level-2; u++) { 
+                /* when swap is done go to the up level*/
+                if(L > (level-2)) L-=2;
+                if (L > 1) {
+                    if(verbose)
+                        cout << " move on to:  " << L << endl;
+                    s = ll[L-1];
+                    ll[L-1] = ll[L];
+                    ll[L] = s;
+                    @<set q[k] from ll, update k@>@;
+
+                    L = level; /* set l to 4 again*/
+                    @<swap bottom@>@; 
+                    @<set q[k] from ll, update k@>@;
+                }
+            }
+            L=1;        
+            for (int j=0;j<level;j++) {
+                ll[j] = p2[j];
+            }
+            s = ll[0];
+            ll[0] = ll[v+1];
+            ll[v+1] = s;
+            L = level;
         }
-        s = ll[0];
-        ll[0] = ll[counter];
-        ll[counter] = s;
-        L = level;
+        return k;
+    }
+    if(r==5) {
+        
+        int k = 0;
+        int cnt =  perm(r);
+        char s;
+        cout << endl;
+        int level =pmax;
+        int counter = 0;
+        int L;
+        char ll[256];
+
+        /* start with init ll*/
+        memset(ll, 0, 256);
+        for (int i= 0; i < level; i++)
+            ll[i] = p2[i];  
+        for (int v=0; v<level; v++) {
+            @<set q[k] from ll, update k@>@;
+
+            L = level;
+            @<swap bottom@>@; 
+            @<set q[k] from ll, update k@>@;
+
+            for(int w=0; w<level-3; w++) {
 
 
-        if(counter < level)
-            goto restart;
-           
+
+                for (int u=0; u<level-2; u++) { 
+                    /* when swap is done go to the up level*/
+                    if(L > (level-2)) L-=2;
+                    if (L > 1) {
+                        if(verbose)
+                            cout << " move u to:  " << L << endl;
+                        s = ll[L-1];
+                        ll[L-1] = ll[L];
+                        ll[L] = s;
+                        @<set q[k] from ll, update k@>@;
+
+                        L = level; /* set l to 4 again*/
+                        @<swap bottom@>@; 
+                        @<set q[k] from ll, update k@>@;
+                    }
+                }
+
+                L=2;
+                for (int j=0;j<level;j++) {
+                    ll[j] = p2[j];
+                }
+               if(verbose) cout << " move w to:  " << L << endl;
+                s = ll[1];
+                ll[1] = ll[w+2];
+                ll[w+2] = s;
+                L = level;
+
+                @<set q[k] from ll, update k@>@;
+
+                L = level;
+                @<swap bottom@>@; 
+                @<set q[k] from ll, update k@>@;
+
+            }
+            L=1;        
+            for (int j=0;j<level;j++) {
+                ll[j] = p2[j];
+            }
+            if(verbose) cout << " move v to:  " << L << endl;
+            s = ll[0];
+            ll[0] = ll[v+1];
+            ll[v+1] = s;
+            L = level;
+        }
+
+
 
         return k;
     }
-    
+
+
     return 1;
 }
 
@@ -433,7 +638,7 @@ cout << k << " : " << q[k] << endl;
 k++;
 
 @ 
-@d verbose 0
+@d verbose 1
 @<swap bottom@>=
 if(L == level) {
     if(verbose)
